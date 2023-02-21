@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cppcoreguidelines-pro-type-member-init"
 //
 // Created by kai on 21/02/23.
 //
@@ -18,3 +20,13 @@ void Colour::set(u8 _r, u8 _g, u8 _b, u8 _a) {
     this->b = _b;
     this->a = _a;
 }
+
+Colour::Colour(u8 r, u8 g, u8 b, u8 a) {
+    set(r, g, b, a);
+}
+
+Colour::Colour(u8 *data) {
+    set(data[0], data[1], data[2], data[3]);
+}
+
+#pragma clang diagnostic pop

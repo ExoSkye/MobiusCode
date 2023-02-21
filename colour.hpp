@@ -12,7 +12,9 @@
 
 class Colour {
 public:
-    void set(u8 _r, u8 g, u8 b, u8 a);
+    Colour(u8 r, u8 g, u8 b, u8 a);
+    explicit Colour(u8* data);
+    void set(u8 r, u8 g, u8 b, u8 a);
     [[nodiscard]] u32 get(Endian e) const;
     auto operator<=>(const Colour&) const = default;
 

@@ -14,8 +14,11 @@ class Program {
 private:
     std::map<vec2, Colour> data;
 
+    Program() = delete;
+
 public:
     explicit Program(const char* fpath);
+
 
     Colour& at(vec2 pos);
     void insert(Colour c, vec2 pos);

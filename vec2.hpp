@@ -8,6 +8,16 @@
 class vec2 {
 public:
     auto operator<=>(const vec2&) const = default;
+    vec2 operator+(const vec2& other) const {
+        return vec2 {
+            other.x + x,
+            other.y + y
+        };
+    };
+
+    void operator+=(const vec2& other) {
+        *this = *this + other;
+    }
 
     s64 x;
     s64 y;

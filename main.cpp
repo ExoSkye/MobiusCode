@@ -8,6 +8,7 @@
 #include "colour.hpp"
 #include "vec2.hpp"
 #include "program.hpp"
+#include "tape.hpp"
 
 #define C(r, g, b, a) ((u32)r << 24 | (u32)g << 16 | (u32)b << 8 | (u32)a)
 
@@ -31,6 +32,8 @@ int main(int argc, char** argv) {
     Program program(argv[1]);
     bool running = true;
 
+    // Registers
+
     vec2 C1, C2;
     s64 R1, R2;
     u64 I;
@@ -39,6 +42,8 @@ int main(int argc, char** argv) {
     Colour C{0, 0, 0, 0};
     int S;
     FILE* fw, *fr, *gw, *gr;
+    u64 i;
+    Tape tape;
 
     while (running) {
         Colour& current_colour = program.at(cur_cell);
@@ -88,7 +93,7 @@ int main(int argc, char** argv) {
                 break;
 
             case (C(255, 255, 255, 0)): // C1.rgba = C.rgba
-                program.insert(current_colour, C1);
+                program.insert(C, C1);
                 break;
 
             // Arithmetic
@@ -151,8 +156,32 @@ int main(int argc, char** argv) {
                 fclose(gr);
                 break;
 
+            // Tape operations
+
+            case (C(63, 0, 0, 0)): // Inc I
+                I++;
+                break;
+
+            case (C(0, 0, 0, 63)): // Dec I
+                I--;
+                break;
+
+            case (C(0, 63, 0, 0)): // R1 = Tape[I]
+                R1 = tape.at(I);
+                break;
+
+            case (C(0, 0, 63, 0)): // Tape[I] = R2
+                tape.at(I) = R2;
+                break;
+
             default: // Assume NOP
                 break;
+        }
+
+        tape.gc();
+
+        if (!no_advance) {
+            cur_cell += direction;
         }
     }
 

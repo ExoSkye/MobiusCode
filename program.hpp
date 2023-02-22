@@ -21,7 +21,7 @@ public:
 
 
     Colour& at(vec2 pos);
-    void insert(Colour c, vec2 pos);
+    void insert(Colour& c, vec2& pos);
 };
 
 

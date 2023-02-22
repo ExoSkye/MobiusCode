@@ -2,6 +2,7 @@
 // Created by kai on 21/02/23.
 //
 
+#include <stdexcept>
 #include "program.hpp"
 
 #define STBI_ONLY_BMP
@@ -29,9 +30,13 @@ Program::Program(const char *fpath) {
 }
 
 Colour& Program::at(vec2 pos) {
-    return this->data.at(pos);
+    try {
+        return this->data.at(pos);
+    } catch (std::out_of_range& e) {
+        printf("WARNING: Tried to access the colour at position (%li, %li), which does not exist - assuming NOP", pos.x, pos.y);
+    }
 }
 
-void Program::insert(Colour c, vec2 pos) {
+void Program::insert(Colour& c, vec2& pos) {
     this->data.insert_or_assign(pos, c);
 }

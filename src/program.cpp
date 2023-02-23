@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include "program.hpp"
 
-#define STBI_ONLY_BMP
+#define STBI_ONLY_PNG
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_FAILURE_USERMSG
 #include "stb_image.h"

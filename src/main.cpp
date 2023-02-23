@@ -3,14 +3,33 @@
 #include <cmath>
 #include <fcntl.h>
 
-#include "definitions.hpp"
+#include "../shared/definitions.hpp"
 #include "endian.hpp"
 #include "colour.hpp"
-#include "vec2.hpp"
+#include "../shared/vec2.hpp"
 #include "program.hpp"
 #include "tape.hpp"
 
 #define C(r, g, b, a) ((u32)r << 24 | (u32)g << 16 | (u32)b << 8 | (u32)a)
+
+void handle_filename_open(Tape* tape, u64 start, FILE** f) {
+    u64 I = start;
+    u64 len;
+
+    while (tape->at(I) != 0) {
+        len++;
+        I++;
+    }
+
+    char* data = (char*)malloc(len);
+
+    for (u64 i = 0; i < len; i++) {
+        data[i] = tape->at(i + start);
+        I++;
+    }
+
+    *f = fopen(data, "aw+");
+}
 
 int main(int argc, char** argv) {
     Endian e = Big;
@@ -35,13 +54,13 @@ int main(int argc, char** argv) {
     // Registers
 
     vec2 C1, C2;
-    s64 R1, R2;
+    s64 R1 = 1, R2 = 1;
     u64 I;
     int F, G;
+    FILE* f, *g;
     u8 A1, A2, A3, A4;
     Colour C{0, 0, 0, 0};
     int S;
-    FILE* fw, *fr, *gw, *gr;
     u64 i;
     Tape tape;
 
@@ -50,6 +69,7 @@ int main(int argc, char** argv) {
 
         switch (current_colour.get(e)) {
             // NOP - do nothing
+
             case (C(0, 0, 0, 0)):
                 break;
 
@@ -118,42 +138,38 @@ int main(int argc, char** argv) {
 
             case (C(0, 0, 0, 255)): // Open File F
                 F = R1;
+                f = fdopen(F, "aw+");
                 break;
 
             case (C(255, 0, 0, 0)): // Open File G
                 G = R1;
+                g = fdopen(G, "aw+");
                 break;
 
             case (C(0, 255, 0, 0)): // Close File F
                 F = -1;
+                fclose(f);
                 break;
 
             case (C(0, 0, 255, 0)): // Close File G
                 G = -1;
+                fclose(g);
                 break;
 
             case (C(255, 255, 0, 0)): // Write R1 to F
-                fw = fdopen(F, "w");
-                fwrite(&R1, sizeof(R1), 1, fw);
-                fclose(fw);
+                fwrite(&R1, sizeof(R1), 1, f);
                 break;
 
             case (C(0, 0, 255, 255)): // Read R1 from F
-                fr = fdopen(F, "r");
-                fread(&R1, sizeof(R1), 1, fr);
-                fclose(fr);
+                fread(&R1, sizeof(R1), 1, f);
                 break;
 
             case (C(255, 127, 0, 0)): // Write R1 to G
-                gw = fdopen(G, "w");
-                fwrite(&R1, sizeof(R1), 1, gw);
-                fclose(gw);
+                fwrite(&R1, sizeof(R1), 1, g);
                 break;
 
             case (C(0, 0, 127, 255)): // Read R1 from G
-                gr = fdopen(F, "r");
-                fread(&R1, sizeof(R1), 1, gr);
-                fclose(gr);
+                fread(&R1, sizeof(R1), 1, g);
                 break;
 
             // Tape operations
@@ -172,6 +188,16 @@ int main(int argc, char** argv) {
 
             case (C(0, 0, 63, 0)): // Tape[I] = R2
                 tape.at(I) = R2;
+                break;
+
+            // File opens with filepath cos i'm an idiot
+
+            case (C(127, 63, 127, 0)):
+                handle_filename_open(&tape, I, &f);
+                break;
+
+            case (C(0, 127, 63, 127)):
+                handle_filename_open(&tape, I, &g);
                 break;
 
             default: // Assume NOP

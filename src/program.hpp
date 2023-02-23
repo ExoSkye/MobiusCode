@@ -8,7 +8,7 @@
 
 #include <map>
 #include "colour.hpp"
-#include "vec2.hpp"
+#include "../shared/vec2.hpp"
 
 class Program {
 private:

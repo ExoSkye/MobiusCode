@@ -7,7 +7,7 @@
 
 
 #include <map>
-#include "definitions.hpp"
+#include "../shared/definitions.hpp"
 
 class Tape {
 private:

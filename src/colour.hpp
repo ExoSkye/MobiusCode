@@ -6,7 +6,7 @@
 #define MOBIUSCODE_COLOUR_HPP
 
 
-#include "definitions.hpp"
+#include "../shared/definitions.hpp"
 #include "endian.hpp"
 #include <compare>
 

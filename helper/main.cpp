@@ -46,20 +46,23 @@ int main(int argc, char** argv) {
         map[pos] = c;
     }
 
-    u64 max_x = 0, max_y = 0;
+    s64 max_x = 0, max_y = 0;
 
     for (auto pair : map) {
         max_x = std::max(max_x, pair.first.x);
         max_y = std::max(max_y, pair.first.y);
     }
 
+    max_x++;
+    max_y++;
+
     u8* data = (u8*)malloc(sizeof(u8) * max_x * max_y * 4);
 
     for (auto pair : map) {
-        data[max_y * pair.first.y + pair.first.x * 4] = pair.second.r;
-        data[max_y * pair.first.y + pair.first.x * 4 + 1] = pair.second.g;
-        data[max_y * pair.first.y + pair.first.x * 4 + 2] = pair.second.b;
-        data[max_y * pair.first.y + pair.first.x * 4 + 3] = pair.second.a;
+        data[(max_x * pair.first.y + pair.first.x) * 4] = pair.second.r;
+        data[(max_x * pair.first.y + pair.first.x) * 4 + 1] = pair.second.g;
+        data[(max_x * pair.first.y + pair.first.x) * 4 + 2] = pair.second.b;
+        data[(max_x * pair.first.y + pair.first.x) * 4 + 3] = pair.second.a;
     }
 
     if (*argv[1] == '-') {
@@ -68,7 +71,7 @@ int main(int argc, char** argv) {
         f = fopen(argv[1], "w+");
     }
 
-    stbi_write_png_compression_level = 0;
+    stbi_write_png_compression_level = 100;
 
     stbi_write_png_to_func(write_func, nullptr, max_x, max_y, 4, data, 0);
 
@@ -78,5 +81,5 @@ int main(int argc, char** argv) {
         fclose(f);
     }
 
-    exit(0);
+    return 0;
 }

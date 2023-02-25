@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <fcntl.h>
+#include <csignal>
 
 #include "../shared/definitions.hpp"
 #include "endian.hpp"
@@ -31,7 +32,17 @@ void handle_filename_open(Tape* tape, u64 start, FILE** f) {
     *f = fopen(data, "aw+");
 }
 
+u64 iter = 0;
+
+void sigint_handler(int s) {
+    printf("Iters run: %lu\n", iter);
+    fflush(stdout);
+    exit(0);
+}
+
 int main(int argc, char** argv) {
+    signal(SIGINT, sigint_handler);
+
     Endian e = Big;
     bool debug = false;
     vec2 cur_cell = {0, 0};
@@ -65,6 +76,7 @@ int main(int argc, char** argv) {
     Tape tape;
 
     while (running) {
+        iter += 1;
         Colour& current_colour = program.at(cur_cell);
 
         switch (current_colour.get(e)) {
@@ -90,8 +102,18 @@ int main(int argc, char** argv) {
                 break;
 
             case (C(0, 127, 127, 0)): // Turn 90 degrees right
-                direction.x = (direction.x * cos(M_PI / 2)) - (direction.y * sin(M_PI / 2));
-                direction.y = (direction.y * cos(M_PI / 2)) + (direction.x * sin(M_PI / 2));
+                std::swap(direction.x, direction.y);
+                direction.x *= -1;
+                break;
+
+            case (C(0, 127, 63, 0)):
+                if (R1 > 0)
+                    direction = {0, 1};
+                break;
+
+            case (C(0, 63, 127, 0)):
+                if (R1 > 0)
+                    direction = {0, -1};
                 break;
 
             // Self modification
@@ -147,13 +169,27 @@ int main(int argc, char** argv) {
                 break;
 
             case (C(0, 255, 0, 0)): // Close File F
+                if (F == 1) {
+                    fflush(f);
+                } else if (F == 2) {
+                    fflush(f);
+                } else if (F != 0) {
+                    fclose(f);
+                }
+
                 F = -1;
-                fclose(f);
                 break;
 
             case (C(0, 0, 255, 0)): // Close File G
+                if (G == 1) {
+                    fflush(g);
+                } else if (G == 2) {
+                    fflush(g);
+                } else if (G != 0) {
+                    fclose(g);
+                }
+
                 G = -1;
-                fclose(g);
                 break;
 
             case (C(255, 255, 0, 0)): // Write R1 to F

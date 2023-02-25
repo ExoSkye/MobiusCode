@@ -18,7 +18,6 @@ public:
     [[nodiscard]] u32 get(Endian e) const;
     auto operator<=>(const Colour&) const = default;
 
-private:
     u8 r;
     u8 g;
     u8 b;

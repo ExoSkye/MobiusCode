@@ -22,19 +22,23 @@ Program::Program(const char *fpath) {
 
     for (int i = 0; i < x; i++) {
         for (int j = 0; j < y; j++) {
-            this->data.insert_or_assign(vec2{i, j}, Colour(&data[j * y + i]));
+            this->data.insert_or_assign(vec2{(s64)i, (s64)j}, Colour(&data[(j * x + i) * 4]));
         }
     }
 
     stbi_image_free(data);
 }
 
+static Colour NOP = Colour(0, 0, 0, 0);
+
 Colour& Program::at(vec2 pos) {
     try {
         return this->data.at(pos);
     } catch (std::out_of_range& e) {
-        printf("WARNING: Tried to access the colour at position (%li, %li), which does not exist - assuming NOP", pos.x, pos.y);
+        printf("WARNING: Tried to access the colour at position (%li, %li), which does not exist - assuming NOP\n", pos.x, pos.y);
     }
+
+    return NOP;
 }
 
 void Program::insert(Colour& c, vec2& pos) {

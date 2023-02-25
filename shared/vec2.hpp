@@ -21,8 +21,8 @@ public:
         *this = *this + other;
     }
 
-    u64 x;
-    u64 y;
+    s64 x;
+    s64 y;
 };
 
 #endif //MOBIUSCODE_VEC2_HPP
